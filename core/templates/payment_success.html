@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Payment Successful | Skill Forge{% endblock %}
+{% block content %}
+{% load static %}
+
+<div class="container my-5">
+  <div class="text-center">
+    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+    <h1 class="display-5">Payment Successful!</h1>
+    <p class="lead">Thank you for your purchase. Your order has been confirmed.</p>
+  </div>
+
+  <!-- order Derail -->
+  <div class="row mt-5 justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">Order Summary</h5>
+        </div>
+        <div class="card-body">
+          <h6 class="mb-3">{{ course.title }}</h6>
+          <p><strong>Category:</strong> {{ course.category.name }}</p>
+          <p><strong>Price Paid:</strong> ₹{{ course.price }}</p>
+          <p><strong>Payment ID:</strong> {{ payment_id }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--  Billing Details -->
+  <div class="row mt-4 justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Billing Details</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Name:</strong> {{ billing.first_name }} {{ billing.last_name }}</p>
+          <p><strong>Email:</strong> {{ billing.email }}</p>
+          <p><strong>Phone:</strong> {{ billing.phone }}</p>
+          <p><strong>Address:</strong> {{ billing.address }}- {{ billing.city }}-{{billing.zip_code}}</p>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mt-5">
+    <a href="{% url 'index' %}" class="btn btn-primary px-4 py-2">Go Back to Home</a>
+  </div>
+</div>
+
+{% endblock %}

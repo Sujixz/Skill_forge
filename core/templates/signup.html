@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Sign Up | Skill Forge{% endblock %}
+{% block content %}
+<section class="d-flex align-items-center justify-content-center" style="height: 100vh; background-color: white;">
+  <div class="card shadow p-4" style="width: 100%; max-width: 500px;">
+    <h3 class="text-center mb-4">Create an Account</h3>
+
+    {% for m in messages %}
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Error:</strong> {{ m }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+    
+    <form method="POST">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" name="username" class="form-control" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email ID</label>
+        <input type="email" name="email" class="form-control" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password1">Password</label>
+        <input type="password" name="password1" id="password1" class="form-control" required>
+        <small id="passwordHelp" class="form-text text-danger"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="password2">Confirm Password</label>
+        <input type="password" name="password2" id="password2" class="form-control" required>
+        <small id="confirmHelp" class="form-text text-danger"></small>
+      </div>
+
+      <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="termsCheck" required>
+        <label class="form-check-label" for="termsCheck">I agree to the terms and conditions</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" id="submitBtn" disabled>Sign Up</button>
+    </form>
+
+    <div class="text-center mt-3">
+      <small>Already have an account? <a href="{% url 'signin' %}">Login</a></small>
+    </div>
+  </div>
+</section>
+
+<script>
+  const password = document.getElementById('password1');
+  const confirmPassword = document.getElementById('password2');
+  const passwordHelp = document.getElementById('passwordHelp');
+  const confirmHelp = document.getElementById('confirmHelp');
+  const submitBtn = document.getElementById('submitBtn');
+
+  function validatePassword() {
+    const val = password.value;
+    let messages = [];
+
+    if (val.length < 8) messages.push("At least 8 characters");
+    if (!/[A-Z]/.test(val)) messages.push("1 uppercase letter");
+    if (!/[a-z]/.test(val)) messages.push("1 lowercase letter");
+    if (!/[0-9]/.test(val)) messages.push("1 number");
+    if (!/[!@#$%^&*]/.test(val)) messages.push("1 special character (!@#$%^&*)");
+
+    if (messages.length > 0) {
+      passwordHelp.innerHTML = "⚠ " + messages.join(", ");
+      passwordHelp.classList.remove("text-success");
+      passwordHelp.classList.add("text-danger");
+      return false;
+    } else {
+      passwordHelp.innerHTML = "✅ Strong password";
+      passwordHelp.classList.remove("text-danger");
+      passwordHelp.classList.add("text-success");
+      return true;
+    }
+  }
+
+  function checkMatch() {
+    if (password.value !== confirmPassword.value) {
+      confirmHelp.innerText = "❌ Passwords do not match";
+      confirmHelp.classList.remove("text-success");
+      confirmHelp.classList.add("text-danger");
+      return false;
+    } else {
+      confirmHelp.innerText = "✅ Passwords match";
+      confirmHelp.classList.remove("text-danger");
+      confirmHelp.classList.add("text-success");
+      return true;
+    }
+  }
+
+  function toggleSubmit() {
+    if (validatePassword() && checkMatch()) {
+      submitBtn.disabled = false;
+    } else {
+      submitBtn.disabled = true;
+    }
+  }
+
+  password.addEventListener('input', () => {
+    validatePassword();
+    checkMatch();
+    toggleSubmit();
+  });
+
+  confirmPassword.addEventListener('input', () => {
+    checkMatch();
+    toggleSubmit();
+  });
+</script>
+{% endblock %}

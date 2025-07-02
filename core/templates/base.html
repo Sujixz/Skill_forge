@@ -1,0 +1,219 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Skill Forge{% endblock %}</title>
+
+  <!-- Bootstrap 4 CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  <style>
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding-top: 70px; /* offset for sticky navbar */
+    }
+
+    /* Logo + Brand styling */
+    .navbar-brand img {
+      height: 35px;
+      margin-right: 8px;
+    }
+
+    .navbar-brand span {
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: #333;
+    }
+
+    .nav-link:hover {
+      color: #007bff !important;
+    }
+
+    .btn-sm {
+      padding: 5px 12px;
+      font-size: 0.85rem;
+    }
+
+    .course-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+   
+
+    footer {
+      background-color: #111;
+    }
+
+    footer a {
+      color: #ccc;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+  </style>
+  <style>
+  /* Hero Section Styling */
+  .hero {
+    background: url("{% static 'images/hero_page.jpg' %}") no-repeat center center/cover;
+    height: 100vh;
+    color: white;
+    display: flex;
+    align-items: center;
+    text-align: left;
+  }
+
+  .hero-content {
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 40px;
+    border-radius: 8px;
+  }
+
+  /* Course Section Styling */
+  .course-card {
+    transition: 0.3s;
+  }
+
+  .course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .section-heading {
+    margin: 60px 0 30px;
+  }
+</style>
+
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+ 
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+    <div class="container">
+      <!-- Logo -->
+      <a class="navbar-brand d-flex align-items-center" href="{% url 'index' %}">
+        <!-- <img src="{% static 'images/logo.png' %}" alt="Skill Forge Logo" onerror="this.style.display='none'"> -->
+        <span>Skill <span style="color:#007bff;">Forge</span></span>
+      </a>
+
+      <!-- Toggle for mobile -->
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navbar Links -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <!-- Left links -->
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item mx-2">
+            <a class="nav-link" href="{% url 'index' %}">Home</a>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link" href="{% url 'course_detail' 1 %}">Courses</a>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link" href="{% url 'wishlist' %}"><i class="fas fa-heart"></i> Wishlist</a>
+          </li>
+        </ul>
+
+        <!-- Search form -->
+        <form class="form-inline mx-2" method="get" action="{% url 'search_results' %}">
+          <input class="form-control mr-sm-2" type="search" name="q" placeholder="Search..." required>
+          <button class="btn btn-outline-primary btn-sm" type="submit">Search</button>
+        </form>
+
+        {% if user.is_authenticated %}
+  <ul class="navbar-nav ml-2">
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle text-dark" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+        Welcome {{ user.username }}
+      </a>
+
+      <div class="dropdown-menu dropdown-menu-right">
+        <a class="dropdown-item" href="#">My Profile</a>
+        <a class="dropdown-item" href="{% url 'enrolled_courses' %}">Enrolled Course</a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item text-danger" href="{% url 'userlogout' %}">Logout</a>
+      </div>
+    </li>
+  </ul>
+{% else %}
+  <ul class="navbar-nav ml-2">
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle text-dark" href="#" id="guestDropdown" role="button" data-toggle="dropdown">
+        Welcome Guest
+      </a>
+      <div class="dropdown-menu dropdown-menu-right">
+        <a class="dropdown-item" href="{% url 'signin' %}">Sign In</a>
+        <a class="dropdown-item" href="{% url 'signup' %}">Sign Up</a>
+      </div>
+    </li>
+  </ul>
+{% endif %}
+      </div>
+    </div>
+  </nav>
+  
+
+  <!-- <div class="container mt-4"> -->
+    {% block content %}
+    
+    {% endblock %}
+  <!-- </div> -->
+
+  <!-- Footer -->
+  <footer class="text-light pt-4 pb-2 mt-5">
+    <div class="container">
+      <div class="row">
+        <!-- About -->
+        <div class="col-md-4 mb-3">
+          <h5>Skill Forge</h5>
+          <p>Master modern skills from industry experts. Learn, grow, and build your future with Skill Forge.</p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-md-4 mb-3">
+          <h5>Quick Links</h5>
+          <ul class="list-unstyled">
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'courses' %}">Courses</a></li>
+            <li><a href="{% url 'wishlist' %}">Wishlist</a></li>
+            <li><a href="{% url 'signin' %}">Sign In</a></li>
+            <li><a href="{% url 'signup' %}">Sign Up</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact -->
+        <div class="col-md-4 mb-3">
+          <h5>Contact Us</h5>
+          <p>Email: support@skillforge.com</p>
+          <p>Phone: +91 99999 99999</p>
+        </div>
+      </div>
+
+      <hr style="background-color: rgba(255,255,255,0.1);">
+      <div class="text-center">
+        <p class="mb-0">&copy; 2025 Skill Forge. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

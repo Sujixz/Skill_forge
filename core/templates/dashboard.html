@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard | Skill Forge{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Welcome, {{ user.username }} </h2>
+
+  <h4 class="mb-3">My Enrolled Courses</h4>
+  <div class="row">
+    {% if enrolled_courses %}
+      {% for enrollment in enrolled_courses %}
+        <div class="col-md-4">
+          <div class="card course-card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">{{ enrollment.course.title }}</h5>
+              <p class="card-text">{{ enrollment.course.description|truncatewords:20 }}</p>
+              <a href="#" class="btn btn-primary btn-sm">Go to Course</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="col">
+        <p>You haven't enrolled in any course yet.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Shop Checkout | Skill Forge{% endblock %}
+{% block content %}
+{% load static %}
+
+<style>
+  .checkout-container {
+    margin-top: 50px;
+  }
+  .form-control:focus {
+    box-shadow: none;
+    border-color: #6c63ff;
+  }
+  .order-summary-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    background: #f9f9f9;
+  }
+  .order-summary-card h5 {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+  .btn-primary {
+    background-color: #6c63ff;
+    border: none;
+  }
+  .btn-primary:hover {
+    background-color: #584ed2;
+  }
+</style>
+
+<div class="container checkout-container">
+  <h1 class="text-center mb-5">Shop Checkout</h1>
+  <p class="text-center mb-4">Home / Shop Checkout</p>
+  <div class="row">
+    
+    <!-- Billing Details Form -->
+    <div class="col-md-7">
+      <h4 class="mb-3">Billing Details</h4>
+      <form method="POST" action="{% url 'checkout' course.id %}">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="first_name">First Name</label>
+            <input type="text" class="form-control" name="first_name" value="{{ request.user.first_name }}" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="last_name">Last Name</label>
+            <input type="text" class="form-control" name="last_name" value="{{ request.user.last_name }}" required>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="email">Email Address</label>
+          <input type="email" class="form-control" name="email" value="{{ request.user.email }}" readonly>
+        </div>
+
+        <div class="mb-3">
+          <label for="phone">Phone Number</label>
+          <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter phone number" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="address">Address</label>
+          <input type="text" class="form-control" id="address" name="address" required>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="city">City</label>
+            <input type="text" class="form-control" id="city" name="city" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="zip">Pin Code</label>
+            <input type="text" class="form-control" id="zip" name="zip" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Continue to Payment</button>
+      </form>
+    </div>
+
+    <!-- Order Summary Card -->
+    <div class="col-md-5">
+      <div class="order-summary-card">
+        <h5>Your Order</h5>
+        <div class="d-flex mb-3">
+          <img src="{{ course.image.url }}" alt="{{ course.title }}" width="80" height="80" class="mr-3 rounded">
+          <div>
+            <h6 class="mb-1">{{ course.title }}</h6>
+            <small class="text-muted">{{ course.category.name }}</small>
+          </div>
+        </div>
+
+        <ul class="list-unstyled">
+          <li class="d-flex justify-content-between">
+            <span>Total Amount:</span>
+            <strong>₹{{ course.price }}</strong>
+          </li>
+          <li class="d-flex justify-content-between">
+            <span>Payable Amount:</span>
+            <strong class="text-primary">₹{{ course.price }}</strong>
+          </li>
+        </ul>
+        <hr>
+      </div>
+      <a href="{% url 'course_detail' 1 %}" class="btn btn-outline-secondary mt-4 px-4 py-2">← Back to Course</a>
+    </div>
+  </div>
+</div>
+
+<!-- Razorpay -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  function openRazorpay() {
+    var options = {
+      "key": "rzp_test_8EXeiGZhGPDs8t",
+      "amount": "{{ order_amount }}",
+      "currency": "INR",
+      "name": "{{ course.title }}",
+      "description": "Course Purchase",
+      "order_id": "{{ order_id }}",
+      "handler": function (response){
+        alert('Payment Successful! Payment ID: ' + response.razorpay_payment_id);
+        window.location.href = "/payment_success/?payment_id=" + response.razorpay_payment_id;
+      },
+      "theme": {
+        "color": "#3399cc"
+      }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+  }
+</script>
+
+{% if request.GET.start_payment %}
+<script>
+  // Auto-open Razorpay if redirected after billing save
+  openRazorpay();
+</script>
+{% endif %}
+
+{% endblock %}

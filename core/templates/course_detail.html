@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} | Skill Forge{% endblock %}
+{% block content %}
+{% load static %}
+
+<style>
+  .course-hero {
+    background: url("{{ course.image.url }}") center center/cover no-repeat;
+    min-height: 350px;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    color: white;
+  }
+  .course-hero::before {
+    content: '';
+    background: rgba(0, 0, 0, 0.55);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+  .course-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 60px 30px;
+  }
+  .nav-tabs .nav-link.active {
+    background-color: #011a35;
+    color: white !important;
+  }
+  .nav-tabs .nav-link {
+    color: #00050a;
+    font-weight: 500;
+  }
+  .check-list li {
+    margin-bottom: 10px;
+  }
+  .card.course-card:hover {
+    transform: scale(1.02);
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+  .card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease-in-out;
+}
+.card {
+  transition: all 0.3s ease-in-out;
+}
+
+</style>
+
+<!-- Hero-section -->
+<div class="container mb-5">
+  <div class="course-hero mb-4">
+    <div class="course-hero-content">
+      <h1 class="display-4 font-weight-bold">{{ course.title }}</h1>
+      <p class="lead">{{ course.category.name }} | By <strong>Prof. Ajay Shah</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="container">
+  <div class="row">
+    
+    
+    <div class="col-md-8">
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-3" id="courseTab" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="overview-tab" data-toggle="tab" href="#overview" role="tab">Overview</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="curriculum-tab" data-toggle="tab" href="#curriculum" role="tab">Curriculum</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="learn-tab" data-toggle="tab" href="#learn" role="tab">What You'll Learn</a>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="courseTabContent">
+        <!-- Overview Tab -->
+        <div class="tab-pane fade show active" id="overview" role="tabpanel">
+          <h5>Course Description</h5>
+          <p class="text-muted">{{ course.description }}</p>
+        </div>
+
+        <!-- Curriculum Tab -->
+       <div class="tab-pane fade" id="curriculum" role="tabpanel">
+          <h5>Course Lessons</h5>
+          {% for lesson in course.lessons.all %}
+            <div class="card mb-2">
+              <div class="card-body">
+                <h6><i class="fas fa-play-circle text-primary mr-2"></i>{{ lesson.title }}</h6>
+                <small class="text-muted">Lesson {{ lesson.order }}</small>
+              </div>
+            </div>
+          {% empty %}
+            <p>No lessons added yet.</p>
+          {% endfor %}
+        </div>
+
+
+        <!-- Learn Tab -->
+        <div class="tab-pane fade" id="learn" role="tabpanel">
+          <h5>Key Learning Points</h5>
+          <ul class="list-unstyled check-list">
+            {% for i in "1234567890"|make_list %}
+            <li><i class="fas fa-check-circle text-success mr-2"></i> Master concept {{ i }}</li><hr>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <!-- Instructor -->
+      <div class="mt-5">
+        <h5>About the Instructor</h5>
+        <div class="d-flex align-items-center">
+          <img src="{% static 'images/prof_1.jpg' %}" class="rounded-circle mr-3" width="60" height="60" alt="Instructor">
+          <div>
+            <strong>Prof. Ajay Shah</strong><br>
+            <small class="text-muted">Expert in Web Development and UX Design.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Section -->
+    <div class="col-md-4">
+      <div class="card shadow-sm mb-4">
+        {% if course.image %}
+          <img src="{{ course.image.url }}" class="card-img-top" alt="Course Image">
+        {% endif %}
+        <div class="card-body">
+          <h4 class="text-dark">₹{{ course.price }}</h4>
+          {% if is_enrolled %}
+            <button class="btn btn-success btn-block" disabled>Already Enrolled</button>
+          {% else %}
+            <a href="{% url 'checkout' course.id %}" class="btn btn-primary btn-block">Enroll Now</a>
+          {% endif %}
+          <hr>
+          <ul class="list-unstyled">
+            <li><i class="fas fa-clock mr-2 text"></i><strong>Duration:</strong> 12 hours</li><hr>
+            <li><i class="fas fa-video mr-2 text"></i><strong>Lectures:</strong> {{ course.lessons.count }}</li><hr>
+            <li><i class="fas fa-user-friends mr-2 text"></i><strong>Enrolled:</strong> 150+ students</li><hr>
+            <li><i class="fas fa-language mr-2 text"></i><strong>Language:</strong> English</li><hr>
+            <li><i class="fas fa-signal mr-2 text"></i><strong>Skill Level:</strong> Beginner</li><hr>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Courses -->
+  <div class="mt-5">
+    <h2 class="mb-4 text-center">Related Courses</h2>
+    <p class="text-center mb-4">Discover your perfect program in our courses.</p>
+    <div class="row">
+      {% for c in courses %}
+        {% if c.id != course.id %}
+        <div class="col-md-4 mb-4">
+          <div class="card course-card h-100">
+            {% if c.image %}
+              <img src="{{ c.image.url }}" class="card-img-top" alt="{{ c.title }}">
+            {% else %}
+              <img src="{% static 'images/default.jpg' %}" class="card-img-top" alt="Default">
+            {% endif %}
+            <div class="card-body">
+              <h6 class="card-title">{{ c.title }}</h6>
+              <p class="text-success mb-1">₹{{ c.price }}</p>
+              <a href="{% url 'course_detail' c.id %}" class="btn btn-outline-primary btn-sm">View Course</a>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
