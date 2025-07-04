@@ -24,11 +24,11 @@
         <input type="password" class="form-control" name="password" placeholder="Password">
       </div>
       <div class="form-check mb-2">
-        <input type="checkbox" class="form-check-input" id="rememberMe">
+        <input type="checkbox" class="form-check-input" id="rememberMe" name="remember_me" required>
         <label class="form-check-label" for="rememberMe">Remember me</label>
       </div>
       <div class="mb-3">
-        <a href="#" class="text-secondary float-right">Forgot password?</a>
+        <a href="{% url 'request_password' %}" class="text-secondary float-right">Forgot password?</a>
       </div>
       <button type="submit" class="btn btn-primary btn-block">Sign In</button>
     </form>

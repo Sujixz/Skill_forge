@@ -135,6 +135,45 @@ def userlogout(request):
     logout(request)
     return redirect("index")
 
+# forget password ( when user clicks on frget paasewrd)
+import random
+from django.core.mail import send_mail
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST['email']
+        otp = random.randint(100000, 999999)
+        request.session['otp'] = str(otp)
+        request.session['email'] = email
+
+        # Send OTP via email
+        send_mail(
+            'Your OTP for Password Reset',
+            f'Your OTP is: {otp}',
+            'your_email@gmail.com',
+            [email],
+            fail_silently=False,
+        )
+
+        return redirect('verify_otp')
+
+    return render(request, 'forgot_password.html')
+
+
+def verify_otp(request):
+    if request.method == 'POST':
+        entered_otp = request.POST['otp']
+        session_otp = request.session.get('otp')
+
+        if entered_otp == session_otp:
+            # OTP correct, redirect to index
+            messages.success(request, "OTP Verified Successfully!")
+            return redirect('index')
+        else:
+            messages.error(request, "Invalid OTP. Please try again.")
+            return redirect('verify_otp')
+
+    return render(request, 'verify_otp.html')
+
 # Dashboard View - Show enrolled courses
 @login_required
 def dashboard(request):
@@ -218,6 +257,8 @@ def payment(request):
 
     return redirect('payment_success')
 
+
+from django.core.mail import send_mail
 @login_required
 def payment_success(request):
     payment_id = request.GET.get('payment_id')
@@ -231,10 +272,38 @@ def payment_success(request):
     course = Course.objects.get(id=course_id) if course_id else None
     billing = BillingDetails.objects.get(id=billing_id) if billing_id else None
 
-    # Save
+    # ✅ Save enrollment
     if course:
         enrollment, created = Enrollment.objects.get_or_create(student=request.user, course=course)
         print("ENROLLMENT CREATED:", created)
+
+    # ✅ Send payment confirmation email
+    if billing and course:
+        send_mail(
+            subject=f'Payment Confirmation - {course.title}',
+            message=f'''
+Hello {billing.first_name} {billing.last_name},
+
+Thank you for your payment!
+
+ Payment ID: {payment_id}
+ Course: {course.title}
+ Amount Paid: ₹{course.price}
+
+You can now access your course anytime by logging into your account.
+
+Happy Learning!
+Skill Forge Team
+''',
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[billing.email],
+            fail_silently=False,
+        )
+        print("Confirmation email sent to:", billing.email)
+
+    # ✅ Clear session data
+    request.session.pop('course_id', None)
+    request.session.pop('billing_id', None)
 
     context = {
         'payment_id': payment_id,
@@ -242,11 +311,8 @@ def payment_success(request):
         'billing': billing,
     }
 
-    
-    request.session.pop('course_id', None)
-    request.session.pop('billing_id', None)
-
     return render(request, 'payment_success.html', context)
+
 
 
 
@@ -272,6 +338,77 @@ def search_results(request):
         'courses': courses
     }
     return render(request, 'search_results.html', context)
+
+import random
+from django.core.mail import send_mail
+
+def request_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        otp = str(random.randint(1000, 9999))
+
+        try:
+            user = User.objects.get(email=email)
+            # Save OTP in session
+            request.session['reset_email'] = email
+            request.session['reset_otp'] = otp
+
+            # Send email
+            send_mail(
+                'Your OTP for Password Reset',
+                f'Hello,\n\nYour OTP for password reset is: {otp}\n\nSkill Forge',
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
+
+            return redirect('reset_password')
+
+        except User.DoesNotExist:
+            return render(request, 'request_password.html', {'error': 'Email not found'})
+
+    return render(request, 'request_password.html')
+
+
+def reset_password(request):
+    if request.method == 'POST':
+        input_otp = request.POST.get('otp')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        session_otp = request.session.get('reset_otp')
+        email = request.session.get('reset_email')
+
+        if not email or not session_otp:
+            return redirect('request_password')  # session expired or invalid flow
+
+        # ✅ OTP verification
+        if input_otp != session_otp:
+            return render(request, 'reset_password.html', {'error': '❌ Invalid OTP entered.'})
+
+        # ✅ Password match verification
+        if new_password != confirm_password:
+            return render(request, 'reset_password.html', {'error': '❌ Passwords do not match.'})
+
+        # ✅ Update password in database
+        try:
+            user = User.objects.get(email=email)
+            user.set_password(new_password)
+            user.save()
+
+            # ✅ Clear session data
+            request.session.pop('reset_otp')
+            request.session.pop('reset_email')
+
+            return redirect('signin')  # replace with your signin url name
+
+        except User.DoesNotExist:
+            return render(request, 'reset_password.html', {'error': 'User not found.'})
+
+    return render(request, 'reset_password.html')
+
+
+
 
 
 

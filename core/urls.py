@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.contrib.auth import views as auth_views
+
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -10,6 +12,11 @@ urlpatterns = [
     path('course/<int:course_id>/enroll/', views.enroll_course, name='enroll_course'),
     path('enrolled_courses/', views.enrolled_courses, name='enrolled_courses'),
     path('course_content/<int:course_id>/', views.course_content, name='course_content'),
+
+
+ # for authentication..(when user clicks on frget passwoed)
+    path('request-password/', views.request_password, name='request_password'),
+    path('reset-password/', views.reset_password, name='reset_password'),
 
 
 
