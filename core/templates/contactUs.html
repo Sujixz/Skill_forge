@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Contact Us | Skill Forge{% endblock title %}
+{% block content %}
+
+<div class="container py-5 d-flex justify-content-center">
+  <div class="w-100" style="max-width: 512px;">
+
+    <!-- Header -->
+    <div class="p-4">
+      <div class="d-flex flex-column gap-3">
+        <h1 class="text-center fw-bold display-6 mb-2">Contact Us</h1><hr>
+        <p class="text-muted small mb-0">
+          Have questions, suggestions, or need support regarding your courses? Reach out to our Skill Forge team. We’re here to assist you in your learning journey.
+        </p>
+      </div>
+    </div>
+
+    <!-- Contact Form -->
+    <form method="POST" action="{% url 'contactUs' %}">
+      {% csrf_token %}
+      
+      <!-- Name -->
+      <div class="px-4 py-3">
+        <label class="form-label text-dark fw-medium pb-1">Your Name</label>
+        <input
+          type="text"
+          name="name"
+          class="form-control"
+          placeholder="Enter your name"
+          required
+          style="height: 56px; border-radius: 0.5rem; background-color: #f9fbfa; border: 1px solid #d5e2dd; color: #111816;"
+        />
+      </div>
+
+      <!-- Email -->
+      <div class="px-4 py-3">
+        <label class="form-label text-dark fw-medium pb-1">Your Email</label>
+        <input
+          type="email"
+          name="email"
+          class="form-control"
+          placeholder="Enter your email"
+          required
+          style="height: 56px; border-radius: 0.5rem; background-color: #f9fbfa; border: 1px solid #d5e2dd; color: #111816;"
+        />
+      </div>
+
+      <!-- Subject -->
+      <div class="px-4 py-3">
+        <label class="form-label text-dark fw-medium pb-1">Subject</label>
+        <input
+          type="text"
+          name="subject"
+          class="form-control"
+          placeholder="Enter the subject"
+          required
+          style="height: 56px; border-radius: 0.5rem; background-color: #f9fbfa; border: 1px solid #d5e2dd; color: #111816;"
+        />
+      </div>
+
+      <!-- Message -->
+      <div class="px-4 py-3">
+        <label class="form-label text-dark fw-medium pb-1">Message</label>
+        <textarea
+          name="message"
+          class="form-control"
+          placeholder="Enter your message"
+          required
+          style="min-height: 9rem; border-radius: 0.5rem; background-color: #f9fbfa; border: 1px solid #d5e2dd; color: #111816;"
+        ></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="px-4 py-3 text-end">
+        <button
+          type="submit"
+          class="btn fw-bold"
+          style="background-color: #6c63ff; color: white; border-radius: 9999px; padding: 0.5rem 1.5rem; min-width: 100px;"
+        >
+          Submit
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}About Us | Skill Forge{% endblock title %}
+
+{% block content %}
+<style>
+  .hero-section {
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1650&q=80');
+    background-size: cover;
+    background-position: center;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+  }
+</style>
+
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <h1 class="display-4 fw-bold">Empowering Learners Globally</h1>
+    <p class="lead mt-3">High-quality, accessible courses bridging education and industry skills.</p>
+    <a href="#" class="btn btn-primary mt-4">Explore Courses</a>
+  </div>
+</section>
+
+<!-- Our Mission -->
+<section class="py-5">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-4">Our Mission</h2>
+    <p class="mx-auto" style="max-width: 700px;">
+      To make quality education accessible worldwide. We design practical, industry-aligned courses that enhance employability and empower learners to achieve their career goals with confidence.
+    </p>
+  </div>
+</section>
+
+<!-- What We Offer -->
+<section class="py-5 bg-light">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-4">What We Offer</h2>
+    <p class="mx-auto" style="max-width: 700px;">
+      From full-stack development to data analytics and digital marketing, our curated courses integrate interactive learning, projects, and assessments to ensure practical mastery alongside theoretical understanding.
+    </p>
+  </div>
+</section>
+
+<!-- Our Values -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-5">Our Values</h2>
+    <div class="row g-4 text-center">
+      <div class="col-md-4">
+        <div class="p-4 border rounded-3 h-100">
+          <i class="bi bi-award fs-1 text-primary mb-3"></i>
+          <h5 class="fw-bold">Student Success</h5>
+          <p>We prioritise helping students achieve their learning and career goals efficiently.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-4 border rounded-3 h-100">
+          <i class="bi bi-lightbulb fs-1 text-success mb-3"></i>
+          <h5 class="fw-bold">Innovation</h5>
+          <p>We embrace technology to make learning more effective, engaging, and future-ready.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-4 border rounded-3 h-100">
+          <i class="bi bi-shield-check fs-1 text-warning mb-3"></i>
+          <h5 class="fw-bold">Integrity</h5>
+          <p>We operate with transparency, honesty, and fairness in all interactions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Join Us -->
+<section class="py-5 bg-light">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-4">Join Us</h2>
+    <p class="mx-auto mb-4" style="max-width: 700px;">
+      Whether you're upskilling, switching careers, or exploring new fields, Skill Forge supports your educational journey. Join thousands of learners growing their skills with us every day.
+    </p>
+    <a href="#" class="btn btn-primary">Get Started Today</a>
+  </div>
+</section>
+
+{% endblock content %}

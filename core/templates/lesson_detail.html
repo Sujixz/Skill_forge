@@ -1,13 +1,54 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}{{ lesson.title }} - {{ course.title }}{% endblock %}
+{% block title %}{{ lesson.title }} | {{ course.title }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2>{{ lesson.title }}</h2>
-  <div class="embed-responsive embed-responsive-16by9 mb-3">
-    <iframe class="embed-responsive-item" src="{{ lesson.video_url }}" allowfullscreen></iframe>
+<div class="container py-5">
+
+  
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'course_detail' course.id %}">{{ course.title }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ lesson.title }}</li>
+    </ol>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="row">
+
+    <!-- Video + Notes Section -->
+    <div class="col-md-8 mb-4">
+      <video controls width="100%" class="rounded shadow">
+        <source src="{{ lesson.video_file.url }}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+
+      <h3 class="fw-bold mt-3">{{ lesson.title }}</h3>
+      <p class="text-muted">Part of {{ course.title }}</p>
+
+      {% if lesson.notes %}
+      <a href="{{ lesson.notes.url }}" class="btn btn-outline-primary mt-2" download>
+        <i class="fas fa-file-download mr-2"></i> Download Notes
+      </a>
+      {% endif %}
+    </div>
+
+    <!-- Curriculum Sidebar -->
+    <div class="col-md-4">
+      <h5>Course Curriculum</h5>
+      <ul class="list-group">
+        {% for l in lessons %}
+        <li class="list-group-item {% if l.id == lesson.id %}active{% endif %}">
+          <a href="{% url 'lesson_detail' course.id l.id %}" class="{% if l.id == lesson.id %}text-white{% else %}text-dark{% endif %}">
+            {{ l.order }}. {{ l.title }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
   </div>
-  <a href="{% url 'course_detail' course.id %}" class="btn btn-secondary">Back to Course</a>
+
 </div>
 {% endblock %}

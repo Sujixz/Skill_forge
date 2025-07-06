@@ -118,8 +118,24 @@
           <li class="nav-item mx-2">
             <a class="nav-link" href="{% url 'index' %}">Home</a>
           </li>
+          <li class="nav-item dropdown mx-2">
+            <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-toggle="dropdown">
+              Categories
+            </a>
+            <div class="dropdown-menu" aria-labelledby="categoryDropdown">
+              {% for category in categories %}
+              <a class="dropdown-item" href="{% url 'search_results' %}?category={{ category.id }}">{{ category.name }}</a>
+              {% endfor %}
+            </div>
+           </li>  
           <li class="nav-item mx-2">
             <a class="nav-link" href="{% url 'course_detail' 1 %}">Courses</a>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link" href="{% url 'aboutUs'  %}">About Us</a>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link" href="{% url 'contactUs'  %}">Contact Us</a>
           </li>
           <li class="nav-item mx-2">
             <!-- <a class="nav-link" href="{% url 'wishlist' %}"><i class="fas fa-heart"></i> Wishlist</a> -->
@@ -140,7 +156,7 @@
       </a>
 
       <div class="dropdown-menu dropdown-menu-right">
-        <a class="dropdown-item" href="#">My Profile</a>
+        <a class="dropdown-item" href="{% url 'profile' %}">My Profile</a>
         <a class="dropdown-item" href="{% url 'enrolled_courses' %}">Enrolled Course</a>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item text-danger" href="{% url 'userlogout' %}">Logout</a>
@@ -151,7 +167,7 @@
   <ul class="navbar-nav ml-2">
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle text-dark" href="#" id="guestDropdown" role="button" data-toggle="dropdown">
-        Welcome Guest
+        Welcome User
       </a>
       <div class="dropdown-menu dropdown-menu-right">
         <a class="dropdown-item" href="{% url 'signin' %}">Sign In</a>

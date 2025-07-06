@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
-from .models import Course, Lesson, Enrollment,BillingDetails
+from .models import Course,Profile, Lesson,Category, Enrollment,BillingDetails
 
 User = get_user_model()
 
@@ -10,14 +10,51 @@ User = get_user_model()
 def index(request):
     courses = Course.objects.filter(is_published=True)
     enrollments = []
+    categories = Category.objects.all()
 
     if request.user.is_authenticated:
         enrollments = Enrollment.objects.filter(student=request.user)
 
     return render(request, 'index.html', {
         'courses': courses,
-        'enrollments': enrollments
+        'enrollments': enrollments,
+        'categories': categories
     })
+
+
+@login_required
+def profile(request):
+    profile,created = Profile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        bio = request.POST.get('bio')
+        phone = request.POST.get('phone')
+        profile_image = request.FILES.get('profile_image')
+
+        user = request.user
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.phone = phone
+        user.profile_image = profile_image
+        
+        user.save()
+
+        profile.bio = bio
+        profile.phone = phone
+        if profile_image:
+            profile.profile_image = profile_image
+        profile.save()
+
+        return redirect('profile')
+
+    context = {
+        'profile': profile
+    }
+    return render(request, 'profile.html', context)
 
 
 def courses(request):
@@ -31,7 +68,7 @@ def course_detail(request, course_id):
     if request.user.is_authenticated:
         is_enrolled = Enrollment.objects.filter(course=course, student=request.user).exists()
 
-    # Exclude current course from related list
+   
     all_courses = Course.objects.filter(is_published=True).exclude(id=course.id)
 
     return render(request, 'course_detail.html', {
@@ -41,14 +78,28 @@ def course_detail(request, course_id):
     })
 
 
+def lesson_detail(request, course_id, lesson_id):
+    course = get_object_or_404(Course, id=course_id)
+    lesson = get_object_or_404(Lesson, id=lesson_id, course=course)
+
+    
+    lessons = Lesson.objects.filter(course=course).order_by('order')
+
+    context = {
+        'course': course,
+        'lesson': lesson,
+        'lessons': lessons
+    }
+    return render(request, 'lesson_detail.html', context)
+
+
+
 from django.views.decorators.http import require_POST
 
 @login_required
 def enroll_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     
-    # Payment verification logic should be implemented here
-    # For now, assuming payment is successful as this is called after checkout
     Enrollment.objects.get_or_create(student=request.user, course=course)
     
     return redirect('enrolled_courses')
@@ -63,6 +114,36 @@ def course_content(request, course_id):
     enrollment = get_object_or_404(Enrollment, student=request.user, course_id=course_id)
     lessons = enrollment.course.lessons.all()
     return render(request, 'course_content.html', {'course': enrollment.course, 'lessons': lessons})
+
+def aboutUs(request):
+    return render(request, 'aboutUs.html')
+
+from django.core.mail import send_mail
+from django.conf import settings
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
+def contactUs(request):
+    success = False
+
+    if request.method == "POST":
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        message = request.POST.get("message")
+
+        subject = f"New Contact Message from {name}"
+        full_message = f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
+
+        send_mail(
+            subject,
+            full_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.DEFAULT_FROM_EMAIL],
+            fail_silently=False,
+        )
+        success = True
+
+    return render(request, "contactUs.html", {"success": success})    
 
 
 
@@ -136,6 +217,7 @@ def userlogout(request):
     return redirect("index")
 
 # forget password ( when user clicks on frget paasewrd)
+
 import random
 from django.core.mail import send_mail
 def forgot_password(request):
@@ -190,7 +272,7 @@ def checkout_view(request, course_id):
 
 
 
-# from django.shortcuts import render, redirect, get_object_or_404
+
 from django.conf import settings
 import razorpay
 
@@ -219,12 +301,11 @@ def checkout(request, course_id):
             zip_code=zip_code
         )
 
-        # Save IDs in session for payment_success retrieval
+        
         request.session['billing_id'] = billing.id
         request.session['course_id'] = course.id
         request.session.modified = True
 
-        # Redirect to same page with ?start_payment=true to trigger Razorpay
         return redirect(f'/checkout/{course_id}/?start_payment=true')
 
     # GET request - Create Razorpay order
@@ -272,12 +353,12 @@ def payment_success(request):
     course = Course.objects.get(id=course_id) if course_id else None
     billing = BillingDetails.objects.get(id=billing_id) if billing_id else None
 
-    # ✅ Save enrollment
+
     if course:
         enrollment, created = Enrollment.objects.get_or_create(student=request.user, course=course)
         print("ENROLLMENT CREATED:", created)
 
-    # ✅ Send payment confirmation email
+    
     if billing and course:
         send_mail(
             subject=f'Payment Confirmation - {course.title}',
@@ -301,7 +382,7 @@ Skill Forge Team
         )
         print("Confirmation email sent to:", billing.email)
 
-    # ✅ Clear session data
+    
     request.session.pop('course_id', None)
     request.session.pop('billing_id', None)
 
@@ -319,12 +400,18 @@ Skill Forge Team
 def wishlist(request):
     return render(request, 'wishlist.html')
 
+from .models import Category
+
+def categories_processor(request):
+    return {'categories': Category.objects.all()}
 
 from django.db.models import Q
 
 def search_results(request):
     query = request.GET.get('q', '').strip()
-    courses = []
+    category_id = request.GET.get('category', '')
+    courses = Course.objects.filter(is_published=True)
+    
 
     if query:
         courses = Course.objects.filter(
@@ -332,10 +419,16 @@ def search_results(request):
             Q(description__icontains=query) |
             Q(category__name__icontains=query)
         ).distinct()
+    
+    if category_id:
+        courses = courses.filter(category_id=category_id)
+
+    categories = Category.objects.all()    
 
     context = {
         'query': query,
-        'courses': courses
+        'courses': courses,
+        'categories': categories,
     }
     return render(request, 'search_results.html', context)
 
@@ -380,27 +473,25 @@ def reset_password(request):
         email = request.session.get('reset_email')
 
         if not email or not session_otp:
-            return redirect('request_password')  # session expired or invalid flow
+            return redirect('request_password')  
 
-        # ✅ OTP verification
+        #  OTP verification
         if input_otp != session_otp:
             return render(request, 'reset_password.html', {'error': '❌ Invalid OTP entered.'})
 
-        # ✅ Password match verification
+       
         if new_password != confirm_password:
             return render(request, 'reset_password.html', {'error': '❌ Passwords do not match.'})
 
-        # ✅ Update password in database
         try:
             user = User.objects.get(email=email)
             user.set_password(new_password)
             user.save()
 
-            # ✅ Clear session data
             request.session.pop('reset_otp')
             request.session.pop('reset_email')
 
-            return redirect('signin')  # replace with your signin url name
+            return redirect('signin')  
 
         except User.DoesNotExist:
             return render(request, 'reset_password.html', {'error': 'User not found.'})
